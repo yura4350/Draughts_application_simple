@@ -116,8 +116,15 @@ class Board:
                         row = max(r - 3, 0)
                     else:
                         row = min(r + 3, ROWS)
+                    #record the current length of dict moves
+                    length = [len(moves)]
                     moves.update(self._traverse_left(r + step, row, step, color, left - 1, skipped=last))
                     moves.update(self._traverse_right(r + step, row, step, color, left + 1, skipped=last))
+                    if len(moves) > length[0]:
+                        delete_pair_by_value(moves, last)
+
+
+
                 break
             elif current.color == color:
                 break
@@ -149,8 +156,14 @@ class Board:
                         row = max(r - 3, 0)
                     else:
                         row = min(r + 3, ROWS)
+                    # record the current length of dict moves
+                    length = [len(moves)]
                     moves.update(self._traverse_left(r + step, row, step, color, right - 1, skipped=last))
                     moves.update(self._traverse_right(r + step, row, step, color, right + 1, skipped=last))
+                    if len(moves) > length[0]:
+                        delete_pair_by_value(moves, last)
+
+                    #delete_pair_by_value(moves, last)
                 break
             elif current.color == color:
                 break
@@ -160,3 +173,13 @@ class Board:
             right += 1
 
         return moves
+
+#Delete the pair key-value from dictionary by value
+def delete_pair_by_value(dictionary, value):
+    keys_to_delete = []
+    for key, val in dictionary.items():
+        if val == value:
+            keys_to_delete.append(key)
+
+    for key in keys_to_delete:
+        del dictionary[key]
