@@ -118,6 +118,56 @@ class Board:
 
         return moves
 
+    def get_valid_moves1(self, piece):
+        valid_moves = []
+        row = piece.row
+        col = piece.col
+
+        # Check for possible moves in all directions
+        if not piece.king:
+            moves = [
+                (row - 1, col - 1),  # Top-left
+                (row - 1, col + 1),  # Top-right
+                (row + 1, col + 1),
+                (row + 1, col - 1),
+                ]
+
+        for move in moves:
+            new_row, new_col = move
+        # Check if the move is within the board boundaries
+            if 0 <= new_row < ROWS and 0 <= new_col < COLS:
+                # Check if the target position is empty
+                if piece.color == RED and new_row == row - 1 and self.board[new_row][new_col] == 0:
+                    if self.board[new_row][new_col] == 0:
+                        valid_moves.append((new_row, new_col))
+
+                elif piece.color == WHITE and new_row == row + 1 and self.board[new_row][new_col] == 0:
+                    if self.board[new_row][new_col] == 0:
+                        valid_moves.append((new_row, new_col))
+
+
+
+                # Check if there is an opponent's piece that can be captured
+                elif self.board[new_row][new_col] != piece.color and self.board[new_row][new_col] != 0:
+                    capture_row = new_row + (new_row - row)
+                    capture_col = new_col + (new_col - col)
+
+                    # Check if the capture position is within the board boundaries
+                    if 0 <= capture_row < ROWS and 0 <= capture_col < COLS:
+                        # Check the capture position is empty
+                        if self.board[capture_row][capture_col] == 0:
+                            valid_moves.append((capture_row, capture_col))
+
+
+
+
+        print(valid_moves)
+        return valid_moves
+
+
+
+
+
     def _traverse_left(self, start, stop, step, color, left, skipped=[]):
         moves = {}
         last = []
