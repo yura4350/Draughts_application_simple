@@ -115,8 +115,21 @@ class Board:
         else:
             pass
 
+        #Include the rule of necessary take
+        for key, value in moves.items():
+            print(key, value)
+        new_moves = {key: value for key, value in moves.items() if value != [] }
 
-        return moves
+        #check if there are possibility to take
+        if len(new_moves) == 0:
+
+            #if there is nothing to take - return previous dictionary
+            return moves
+
+        else:
+
+            #if there is something to take - return new changed dictionary only with moves which take something
+            return new_moves
 
     def get_valid_moves1(self, piece):
         valid_moves = []
