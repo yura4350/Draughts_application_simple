@@ -206,9 +206,9 @@ class Board:
                         opposite_row = max(r - 3, -1)
                     #record the current length of dict moves
                     length = [len(moves)]
-                    moves.update(self._traverse_left(r + step, row, step, color, left - 1, skipped=last))
-                    moves.update(self._traverse_right(r + step, row, step, color, left + 1, skipped=last))
-                    moves.update(self._traverse_left(r-step, opposite_row, -step, color, left-1, skipped=last))
+                    moves.update(self._traverse_left(r + step, row, step, color, left - 1, skipped=last + skipped))
+                    moves.update(self._traverse_right(r + step, row, step, color, left + 1, skipped=last + skipped))
+                    moves.update(self._traverse_left(r-step, opposite_row, -step, color, left-1, skipped=last + skipped))
 
                     # if len(moves) > length[0]:
                     #     delete_pair_by_value(moves, last)
@@ -253,9 +253,9 @@ class Board:
                         opposite_row = max(r - 3, -1)
                     # record the current length of dict moves
                     length = [len(moves)]
-                    moves.update(self._traverse_left(r + step, row, step, color, right - 1, skipped=last))
-                    moves.update(self._traverse_right(r + step, row, step, color, right + 1, skipped=last))
-                    moves.update(self._traverse_right(r - step, opposite_row, -step, color, right + 1, skipped=last))
+                    moves.update(self._traverse_left(r + step, row, step, color, right - 1, skipped=last + skipped))
+                    moves.update(self._traverse_right(r + step, row, step, color, right + 1, skipped=last + skipped))
+                    moves.update(self._traverse_right(r - step, opposite_row, -step, color, right + 1, skipped=last + skipped))
                     #if len(moves) > length[0]:
                         #delete_pair_by_value(moves, last)
 
