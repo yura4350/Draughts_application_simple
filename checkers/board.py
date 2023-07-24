@@ -164,43 +164,64 @@ class Board:
         print(valid_moves)
         return valid_moves
 
-
-
-
-
     def _traverse_left(self, start, stop, step, color, left, skipped=[]):
         moves = {}
+
+        #last - the last piece we skipped to move to this point
         last = []
+
         for r in range(start, stop, step):
+
+            #The situation we are now looking outside of the board
             if left < 0:
                 break
 
             current = self.board[r][left]
+
+            #check if the cell we are in is empty
             if current == 0:
+
+                #The case when we skipped a piece and have not seen a piece yet
                 if skipped and not last:
+                    print(1)
                     break
+
+                #double+ jump
                 elif skipped:
-                    moves[(r, left)] = last + skipped
+                    print(2)
+                    #combine the last checker we jumped and the checker on this move
+                    moves[(r, left)] = skipped
+
+                #if it is 0 and last existed - we can jump over it
                 else:
+                    print(3)
                     moves[(r, left)] = last
 
+                #we found an empty square and last has a value in it - we had something we skipped over
                 if last:
                     if step == -1:
+
+                        #created row and opposite_row to have the ability to move upwards and downwards by any piece (row - maximum in the direction we moved in before, opposite_row - the opposite direction)
                         row = max(r - 3, -1)
+                        opposite_row = min(r + 3, ROWS)
                     else:
                         row = min(r + 3, ROWS)
+                        opposite_row = max(r - 3, -1)
                     #record the current length of dict moves
                     length = [len(moves)]
                     moves.update(self._traverse_left(r + step, row, step, color, left - 1, skipped=last))
                     moves.update(self._traverse_right(r + step, row, step, color, left + 1, skipped=last))
-                    if len(moves) > length[0]:
-                        delete_pair_by_value(moves, last)
+                    moves.update(self._traverse_left(r-step, opposite_row, -step, color, left-1, skipped=last))
 
-
+                    # if len(moves) > length[0]:
+                    #     delete_pair_by_value(moves, last)
 
                 break
+            #if there is our piece in this square - we cant move here, so break
             elif current.color == color:
                 break
+
+            #if there is a piece in the square and it is not of our color - then we can move further (last piece will be the piece we are jumping through now)
             else:
                 last = [current]
 
@@ -220,21 +241,26 @@ class Board:
                 if skipped and not last:
                     break
                 elif skipped:
-                    moves[(r, right)] = last + skipped
+                    moves[(r, right)] = last+skipped
                 else:
                     moves[(r, right)] = last
 
                 if last:
                     if step == -1:
+
+                        #description in traverse_left
                         row = max(r - 3, -1)
+                        opposite_row = min(r + 3, ROWS)
                     else:
                         row = min(r + 3, ROWS)
+                        opposite_row = max(r - 3, -1)
                     # record the current length of dict moves
                     length = [len(moves)]
                     moves.update(self._traverse_left(r + step, row, step, color, right - 1, skipped=last))
                     moves.update(self._traverse_right(r + step, row, step, color, right + 1, skipped=last))
-                    if len(moves) > length[0]:
-                        delete_pair_by_value(moves, last)
+                    moves.update(self._traverse_right(r - step, row, -step, color, right + 1, skipped=last))
+                    #if len(moves) > length[0]:
+                        #delete_pair_by_value(moves, last)
 
                     #delete_pair_by_value(moves, last)
                 break
