@@ -1,0 +1,1 @@
+1st problem - endless recursion when you get back to the place where you have already been -------------- Solution - probably create a list of visited places
