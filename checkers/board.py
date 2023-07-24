@@ -183,18 +183,15 @@ class Board:
 
                 #The case when we skipped a piece and have not seen a piece yet
                 if skipped and not last:
-                    print(1)
                     break
 
                 #double+ jump
                 elif skipped:
-                    print(2)
                     #combine the last checker we jumped and the checker on this move
-                    moves[(r, left)] = skipped
+                    moves[(r, left)] = last + skipped
 
                 #if it is 0 and last existed - we can jump over it
                 else:
-                    print(3)
                     moves[(r, left)] = last
 
                 #we found an empty square and last has a value in it - we had something we skipped over
@@ -241,7 +238,7 @@ class Board:
                 if skipped and not last:
                     break
                 elif skipped:
-                    moves[(r, right)] = last+skipped
+                    moves[(r, right)] = last + skipped
                 else:
                     moves[(r, right)] = last
 
@@ -258,7 +255,7 @@ class Board:
                     length = [len(moves)]
                     moves.update(self._traverse_left(r + step, row, step, color, right - 1, skipped=last))
                     moves.update(self._traverse_right(r + step, row, step, color, right + 1, skipped=last))
-                    moves.update(self._traverse_right(r - step, row, -step, color, right + 1, skipped=last))
+                    moves.update(self._traverse_right(r - step, opposite_row, -step, color, right + 1, skipped=last))
                     #if len(moves) > length[0]:
                         #delete_pair_by_value(moves, last)
 
