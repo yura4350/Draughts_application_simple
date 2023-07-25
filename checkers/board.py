@@ -4,11 +4,12 @@ from .piece import Piece
 
 
 class Board:
-    def __init__(self):
+    def __init__(self, game):
         self.board = []
         self.red_left = self.white_left = ((ROWS-2) // 2) * COLS // 2
         self.red_kings = self.white_kings = 0
         self.create_board()
+        self.game = game
 
     def draw_squares(self, win):
         win.fill(BLACK)
@@ -127,7 +128,20 @@ class Board:
         #create new list of moves, which will only include moves, in which you can take the most pieces
         new_moves = {key: value for key, value in moves.items() if len(value) == max_length}
 
+        print(new_moves)
         return new_moves
+
+    def get_checked_valid_moves(self, piece):
+        moves = self.get_valid_moves(piece)
+        check_moves = self.game.get_all_moves()
+        new_moves = {}
+
+        for move in moves.items():
+            if move in check_moves.items():
+                new_moves[move[0]] = move[1]
+
+        return new_moves
+
 
     def get_valid_moves1(self, piece):
         valid_moves = []
@@ -169,10 +183,6 @@ class Board:
                         if self.board[capture_row][capture_col] == 0:
                             valid_moves.append((capture_row, capture_col))
 
-
-
-
-        print(valid_moves)
         return valid_moves
 
     def _traverse_left(self, start, stop, step, color, left, skipped=[]):
