@@ -115,21 +115,19 @@ class Board:
         else:
             pass
 
-        #Include the rule of necessary take
+        #Include the rule of the necessary take of the most pieces possible
+
+        max_length = 0
+
+        #find maximum length of the take (max_length)
         for key, value in moves.items():
-            print(key, value)
-        new_moves = {key: value for key, value in moves.items() if value != [] }
+            if len(value) > max_length:
+                max_length = len(value)
 
-        #check if there are possibility to take
-        if len(new_moves) == 0:
+        #create new list of moves, which will only include moves, in which you can take the most pieces
+        new_moves = {key: value for key, value in moves.items() if len(value) == max_length}
 
-            #if there is nothing to take - return previous dictionary
-            return moves
-
-        else:
-
-            #if there is something to take - return new changed dictionary only with moves which take something
-            return new_moves
+        return new_moves
 
     def get_valid_moves1(self, piece):
         valid_moves = []

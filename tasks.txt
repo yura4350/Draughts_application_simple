@@ -1,0 +1,2 @@
+1. Need to create the function so if the take is possible, you have to take
+2. Create a function, so the piece has to take

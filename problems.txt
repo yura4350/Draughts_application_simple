@@ -1,1 +1,2 @@
 1st problem - endless recursion when you get back to the place where you have already been -------------- Solution - probably create a list of visited places
+2nd problem - fix roundabouts (basically the 1st task)
