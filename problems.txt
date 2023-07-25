@@ -1,2 +1,4 @@
 1st problem - endless recursion when you get back to the place where you have already been -------------- Solution - probably create a list of visited places
 2nd problem - fix roundabouts (basically the 1st task)
+3rd problem - when white piece takes back - it becomes a king
+4th - as we program only the final place, we ignore the situation, where we can take by two pieces to one spot

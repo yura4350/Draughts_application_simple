@@ -10,7 +10,6 @@ class Board:
         self.red_kings = self.white_kings = 0
         self.create_board()
 
-
     def draw_squares(self, win):
         win.fill(BLACK)
         for row in range(ROWS):
@@ -32,11 +31,14 @@ class Board:
         self.board[piece.row][piece.col], self.board[row][col] = self.board[row][col], self.board[piece.row][piece.col]
         piece.move(row, col)
 
-        if row == ROWS - 1 or row == 0:
-            piece.make_king()
-            if piece.color == WHITE:
+        #this piece of code checks the condition where a king should be made
+        if piece.color == WHITE:
+            if row == ROWS - 1:
+                piece.make_king()
                 self.white_kings += 1
-            else:
+        else:
+            if row == 0:
+                piece.make_king()
                 self.red_kings += 1
 
     def get_piece(self, row, col):
