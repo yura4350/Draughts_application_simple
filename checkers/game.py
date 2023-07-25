@@ -17,7 +17,7 @@ class Game:
 
     def _init(self):
         self.selected = None
-        self.board = Board(self)
+        self.board = Board()
         self.turn = RED
         self.valid_moves = {}
 
@@ -28,7 +28,6 @@ class Game:
         self._init()
 
     def select(self, row, col):
-        self.get_all_moves()
         if self.selected:
             result = self._move(row, col)
             if not result:
@@ -97,22 +96,6 @@ class Game:
         self.board = board
         self.change_turn()
 
-    def get_all_moves(self):
-        moves = {}
-        max_skipped = 0
 
-        for piece in self.board.get_all_pieces(self.turn):
-            valid_moves = self.board.get_valid_moves(piece)
-            for move, skip in valid_moves.items():
-                if len(skip) > max_skipped:
-                    max_skipped = len(skip)
-
-        for piece in self.board.get_all_pieces(self.turn):
-            valid_moves = self.board.get_valid_moves(piece)
-            for move, skip in valid_moves.items():
-                if len(skip) == max_skipped:
-                    moves[move] = skip
-
-        return moves
 
         # pygame.time.delay(100)

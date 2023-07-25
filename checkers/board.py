@@ -4,12 +4,12 @@ from .piece import Piece
 
 
 class Board:
-    def __init__(self, game):
+    def __init__(self):
         self.board = []
         self.red_left = self.white_left = ((ROWS-2) // 2) * COLS // 2
         self.red_kings = self.white_kings = 0
         self.create_board()
-        self.game = game
+
 
     def draw_squares(self, win):
         win.fill(BLACK)
@@ -128,12 +128,11 @@ class Board:
         #create new list of moves, which will only include moves, in which you can take the most pieces
         new_moves = {key: value for key, value in moves.items() if len(value) == max_length}
 
-        print(new_moves)
         return new_moves
 
     def get_checked_valid_moves(self, piece):
         moves = self.get_valid_moves(piece)
-        check_moves = self.game.get_all_moves()
+        check_moves = self.get_all_moves(piece.color)
         new_moves = {}
 
         for move in moves.items():
@@ -288,6 +287,24 @@ class Board:
                 last = [current]
 
             right += 1
+
+        return moves
+
+    def get_all_moves(self, color):
+        moves = {}
+        max_skipped = 0
+
+        for piece in self.get_all_pieces(color):
+            valid_moves = self.get_valid_moves(piece)
+            for move, skip in valid_moves.items():
+                if len(skip) > max_skipped:
+                    max_skipped = len(skip)
+
+        for piece in self.get_all_pieces(color):
+            valid_moves = self.get_valid_moves(piece)
+            for move, skip in valid_moves.items():
+                if len(skip) == max_skipped:
+                    moves[move] = skip
 
         return moves
 
