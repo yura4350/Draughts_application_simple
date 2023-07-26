@@ -5,7 +5,7 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 
 
-def minimax(position, depth, max_player, game):
+def minimax(position, depth, max_player, game, alpha, beta):
     if depth == 0 or position.winner() != None:
         return position.evaluate(), position
 
@@ -13,8 +13,11 @@ def minimax(position, depth, max_player, game):
         maxEval = float('-inf')
         best_move = None
         for move in get_all_moves(position, WHITE, game):
-            evaluation = minimax(move, depth - 1, False, game)[0]
+            evaluation = minimax(move, depth - 1, False, game, alpha, beta)[0]
             maxEval = max(maxEval, evaluation)
+            alpha = max(alpha, maxEval)
+            if beta <= alpha:
+                break
             if maxEval == evaluation:
                 best_move = move
 
@@ -23,8 +26,11 @@ def minimax(position, depth, max_player, game):
         minEval = float('inf')
         best_move = None
         for move in get_all_moves(position, RED, game):
-            evaluation = minimax(move, depth - 1, True, game)[0]
+            evaluation = minimax(move, depth - 1, True, game, alpha, beta)[0]
             minEval = min(minEval, evaluation)
+            beta = min(beta, minEval)
+            if beta <= alpha:
+                break
             if minEval == evaluation:
                 best_move = move
 
@@ -55,9 +61,9 @@ def get_all_moves(board, color, game):
 
 
 def draw_moves(game, board, piece):
-    valid_moves = board.get_valid_moves(piece)
+    valid_moves = board.get_checked_valid_moves(piece)
     board.draw(game.win)
     pygame.draw.circle(game.win, (0, 255, 0), (piece.x, piece.y), 50, 5)
     game.draw_valid_moves(valid_moves.keys())
     pygame.display.update()
-    # pygame.time.delay(100)
+    pygame.time.delay(100)

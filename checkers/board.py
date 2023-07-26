@@ -17,6 +17,7 @@ class Board:
                 pygame.draw.rect(win, RED, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
     def evaluate(self):
+        #print(self.white_left - self.red_left + (self.white_kings * 0.5 - self.red_kings * 0.5))
         return self.white_left - self.red_left + (self.white_kings * 0.5 - self.red_kings * 0.5)
 
     def get_all_pieces(self, color):
@@ -134,15 +135,14 @@ class Board:
 
     def get_checked_valid_moves(self, piece):
         moves = self.get_valid_moves(piece)
-        check_moves = self.get_all_moves(piece.color)
+        max_to_take = self.get_max_to_take(piece.color)
         new_moves = {}
 
-        for move in moves.items():
-            if move in check_moves.items():
-                new_moves[move[0]] = move[1]
+        for move, skip in moves.items():
+            if len(skip) == max_to_take:
+                new_moves[move] = skip
 
         return new_moves
-
 
     def get_valid_moves1(self, piece):
         valid_moves = []
@@ -292,7 +292,8 @@ class Board:
 
         return moves
 
-    def get_all_moves(self, color):
+    #the function identifies the maximum amount of pieces we can take
+    def get_max_to_take(self, color):
         moves = {}
         max_skipped = 0
 
@@ -302,13 +303,7 @@ class Board:
                 if len(skip) > max_skipped:
                     max_skipped = len(skip)
 
-        for piece in self.get_all_pieces(color):
-            valid_moves = self.get_valid_moves(piece)
-            for move, skip in valid_moves.items():
-                if len(skip) == max_skipped:
-                    moves[move] = skip
-
-        return moves
+        return max_skipped
 
 #Delete the pair key-value from dictionary by value
 def delete_pair_by_value(dictionary, value):
