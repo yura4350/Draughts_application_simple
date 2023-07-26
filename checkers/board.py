@@ -17,8 +17,17 @@ class Board:
                 pygame.draw.rect(win, RED, (row * SQUARE_SIZE, col * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
     def evaluate(self):
+        evaluation = self.white_left - self.red_left + (self.white_kings * 2 - self.red_kings * 2)
         #print(self.white_left - self.red_left + (self.white_kings * 0.5 - self.red_kings * 0.5))
-        return self.white_left - self.red_left + (self.white_kings * 0.5 - self.red_kings * 0.5)
+        pieces_white = self.get_all_pieces(WHITE)
+        pieces_black = self.get_all_pieces(BLACK)
+        for piece in pieces_white:
+            #evaluation += piece.row/100
+            evaluation -= abs(3.5 - piece.col)/50
+        for piece in pieces_black:
+            #evaluation -= (7 - piece.row) / 100
+            evaluation += abs(3.5 - piece.col)/50
+        return evaluation
 
     def get_all_pieces(self, color):
         pieces = []
