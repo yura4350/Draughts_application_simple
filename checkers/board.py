@@ -117,7 +117,48 @@ class Board:
             for key in list_of_keys_to_delete:
                 del moves[key]
         else:
-            pass
+            moves.update(self._traverse_left_king(row - 1, -1, -1, piece.color, left))
+            moves.update(self._traverse_right_king(row - 1, -1, -1, piece.color, right))
+            moves.update(self._traverse_left_king(row + 1, ROWS, 1, piece.color, left))
+            moves.update(self._traverse_right_king(row + 1, ROWS, 1, piece.color, right))
+
+            max_length = 0
+
+            for key, value in moves.items():
+                if len(value) > max_length:
+                    max_length = len(value)
+
+            new_moves = {key: value for key, value in moves.items() if len(value) == max_length}
+
+            checker_sum = True
+            sum = -1
+            if max_length > 0:
+                for key, value in new_moves.items():
+                    if sum == -1:
+                        sum = key[0] + key[1]
+                    else:
+                        if key[0] + key[1] != sum:
+                            checker_sum = False
+
+            list_of_keys_to_delete = []
+            if max_length > 0:
+                if checker_sum == True:
+                    for key, value in new_moves.items():
+                        if key[0] - key[1] != value[0].row - value[0].col:
+                            list_of_keys_to_delete.append(key)
+
+                else:
+                    for key, value in new_moves.items():
+                        if key[0] + key[1] != value[-1].row + value[-1].col:
+                            list_of_keys_to_delete.append(key)
+
+            for key in list_of_keys_to_delete:
+                new_moves.pop(key)
+
+            moves = new_moves
+
+
+
 
         #Include the rule of the necessary take of the most pieces possible
 
@@ -287,6 +328,146 @@ class Board:
                 break
             else:
                 last = [current]
+
+            right += 1
+
+        return moves
+
+    def _traverse_left_king(self, start, stop, step, color, left, skipped=[], prev=False, change_of_direction=False):
+        moves = {}
+
+        # last - the last piece we skipped to move to this point
+        last = []
+
+        for r in range(start, stop, step):
+
+            # The situation we are now looking outside of the board
+            if left < 0:
+                break
+
+            current = self.board[r][left]
+
+            if current != 0 and current.color != color:
+                if prev:
+                    break
+                else:
+                    prev = current.color
+
+
+            # check if the cell we are in is empty
+            if current == 0:
+
+                prev = False
+
+                # The case when we skipped a piece and have not seen a piece yet
+
+                # double+ jump
+                if skipped:
+                    # combine the last checker we jumped and the checker on this move
+                    moves[(r, left)] = last + skipped
+
+                # if it is 0 and last existed - we can jump over it
+                else:
+                    moves[(r, left)] = last + skipped
+                    #print(last, 3)
+
+                # we found an empty square and last has a value in it - we had something we skipped over
+
+
+                if step == -1:
+
+                    # created row and opposite_row to have the ability to move upwards and downwards by any piece (row - maximum in the direction we moved in before, opposite_row - the opposite direction)
+                    row = -1
+                    opposite_row = ROWS
+                else:
+                    row = ROWS
+                    opposite_row = -1
+                # record the current length of dict moves
+                length = [len(moves)]
+                if change_of_direction == True:
+                    moves.update(self._traverse_left_king(r + step, row, step, color, left - 1, skipped=last + skipped, prev = prev, change_of_direction=True))
+                    moves.update(self._traverse_right_king(r + step, row, step, color, left + 1, skipped=last + skipped, prev = prev, change_of_direction=False))
+                    moves.update(self._traverse_left_king(r - step, opposite_row, -step, color, left - 1, skipped=last + skipped, prev = prev, change_of_direction=False))
+                else:
+                    moves.update(self._traverse_left_king(r + step, row, step, color, left - 1, skipped=last + skipped,prev=prev))
+
+                    # if len(moves) > length[0]:
+                    #     delete_pair_by_value(moves, last)
+
+
+                break
+            # if there is our piece in this square - we cant move here, so break
+            elif current.color == color:
+                break
+
+            # if there is a piece in the square and it is not of our color - then we can move further (last piece will be the piece we are jumping through now)
+            else:
+                change_of_direction=True
+            last = [current]
+            #print(last, 4)
+
+            left -= 1
+
+        return moves
+
+    def _traverse_right_king(self, start, stop, step, color, right, skipped=[], prev=[], change_of_direction=False):
+        moves = {}
+        last = []
+
+
+        for r in range(start, stop, step):
+            if right >= COLS:
+                break
+
+            current = self.board[r][right]
+
+            if current != 0 and current.color != color:
+                if prev:
+                    break
+                else:
+                    prev = current.color
+
+            if current == 0:
+                prev = False
+                if skipped:
+                    moves[(r, right)] = last + skipped
+                else:
+                    #print(last, 1)
+                    moves[(r, right)] = last
+
+
+
+                if step == -1:
+
+                    # description in traverse_left
+                    row = -1
+                    opposite_row = ROWS
+                else:
+                    row = ROWS
+                    opposite_row = -1
+                # record the current length of dict moves
+                length = [len(moves)]
+
+
+                moves.update(self._traverse_right_king(r + step, row, step, color, right + 1, skipped=last + skipped, prev = prev))
+                if change_of_direction == True:
+                    moves.update(self._traverse_left_king(r + step, row, step, color, right - 1, skipped=last + skipped, prev=prev))
+                    moves.update(self._traverse_right_king(r - step, opposite_row, -step, color, right + 1, skipped=last + skipped, prev = prev))
+                # if len(moves) > length[0]:
+                    # delete_pair_by_value(moves, last)
+
+                    # delete_pair_by_value(moves, last)
+                break
+
+            elif current.color == color:
+                break
+
+            else:
+                change_of_direction = True
+
+            last = [current]
+            #print(last, 2)
+
 
             right += 1
 
