@@ -6,7 +6,8 @@ from .piece import Piece
 class Board:
     def __init__(self):
         self.board = []
-        self.red_left = self.white_left = ((ROWS-2) // 2) * COLS // 2
+        self.red_left = ((ROWS-2) // 2) * COLS // 2
+        self.white_left = ((ROWS-2) // 2) * COLS // 2
         self.red_kings = self.white_kings = 0
         self.create_board()
 
@@ -292,6 +293,9 @@ class Board:
 
             #if there is a piece in the square and it is not of our color - then we can move further (last piece will be the piece we are jumping through now)
             else:
+                if current in skipped:
+                    print(1)
+                    break
                 last = [current]
 
             left -= 1
@@ -336,6 +340,9 @@ class Board:
             elif current.color == color:
                 break
             else:
+                if current in skipped:
+                    print(1)
+                    break
                 last = [current]
 
             right += 1
@@ -411,6 +418,9 @@ class Board:
 
             # if there is a piece in the square and it is not of our color - then we can move further (last piece will be the piece we are jumping through now)
             else:
+                if current in skipped:
+                    print(1)
+                    break
                 change_of_direction=True
             last = [current]
             #print(last, 4)
@@ -472,6 +482,10 @@ class Board:
                 break
 
             else:
+                print(skipped)
+                if current in skipped:
+                    print(1)
+                    break
                 change_of_direction = True
 
             last = [current]
