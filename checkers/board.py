@@ -140,30 +140,60 @@ class Board:
 
             new_moves = {key: value for key, value in moves.items() if len(value) == max_length}
 
-            checker_sum = True
-            sum = -1
+            values = []
+
             if max_length > 0:
                 for key, value in new_moves.items():
-                    if sum == -1:
-                        sum = key[0] + key[1]
-                    else:
-                        if key[0] + key[1] != sum:
-                            checker_sum = False
+                    if value not in values:
+                        values.append(value)
 
+            #list of keys to be deleted
             list_of_keys_to_delete = []
+            #list of keys which should not be deleted when going through other values
+            list_of_undeletable_keys = []
+            #problem is here
             if max_length > 0:
-                if checker_sum == True:
+                #looping through all values
+                for value_first in values:
+                    print(value_first)
+                    print(values)
+                    #we get diagonal so we can understand what to look for: sum or difference of rows and columns
+                    updown_diagonal= True
+                    sum = -1
+                    difference = -1
+                    #checking value
                     for key, value in new_moves.items():
-                        if key[0] - key[1] != value[0].row - value[0].col:
-                            list_of_keys_to_delete.append(key)
+                        if value == value_first:
+                            if abs(key[0] - value[0].row) == 1 and abs(key[1] - value[0].col) == 1:
+                                if key[0] + key[1] == value[0].row + value[0].col:
+                                    updown_diagonal = False
+                                else:
+                                    updown_diagonal = True
 
-                else:
-                    for key, value in new_moves.items():
-                        if key[0] + key[1] != value[-1].row + value[-1].col:
-                            list_of_keys_to_delete.append(key)
+                    if updown_diagonal == True:
+                        for key, value in new_moves.items():
+                            if key[0] - key[1] != value[0].row - value[0].col and value_first == value:
+                                list_of_keys_to_delete.append(key)
+                            else:
+                                list_of_undeletable_keys.append(key)
+
+                    else:
+                        for key, value in new_moves.items():
+                            if key[0] + key[1] != value[0].row + value[0].col and value_first == value:
+                                list_of_keys_to_delete.append(key)
+                            else:
+                                list_of_undeletable_keys.append(key)
+
+
+            print(new_moves, 1)
+            print(list_of_undeletable_keys, 5)
+            print(list_of_keys_to_delete, 6)
 
             for key in list_of_keys_to_delete:
-                new_moves.pop(key)
+                if key not in list_of_undeletable_keys:
+                    del new_moves[key]
+
+            print(new_moves, 2)
 
             moves = new_moves
 
@@ -349,7 +379,7 @@ class Board:
 
         return moves
 
-    def _traverse_left_king(self, start, stop, step, color, left, skipped=[], prev=False, change_of_direction=False):
+    def _traverse_left_king(self, start, stop, step, color, left, skipped=[], prev=False, change_of_direction=False, passed=[]):
         moves = {}
 
         # last - the last piece we skipped to move to this point
@@ -401,11 +431,11 @@ class Board:
                 # record the current length of dict moves
                 length = [len(moves)]
                 if change_of_direction == True:
-                    moves.update(self._traverse_left_king(r + step, row, step, color, left - 1, skipped=last + skipped, prev = prev, change_of_direction=True))
-                    moves.update(self._traverse_right_king(r + step, row, step, color, left + 1, skipped=last + skipped, prev = prev, change_of_direction=False))
-                    moves.update(self._traverse_left_king(r - step, opposite_row, -step, color, left - 1, skipped=last + skipped, prev = prev, change_of_direction=False))
+                    moves.update(self._traverse_left_king(r + step, row, step, color, left - 1, skipped=last + skipped, prev = prev, change_of_direction=True, passed=passed))
+                    moves.update(self._traverse_right_king(r + step, row, step, color, left + 1, skipped=last + skipped, prev = prev, change_of_direction=False, passed=passed))
+                    moves.update(self._traverse_left_king(r - step, opposite_row, -step, color, left - 1, skipped=last + skipped, prev = prev, change_of_direction=False, passed=passed))
                 else:
-                    moves.update(self._traverse_left_king(r + step, row, step, color, left - 1, skipped=last + skipped,prev=prev))
+                    moves.update(self._traverse_left_king(r + step, row, step, color, left - 1, skipped=last + skipped,prev=prev, change_of_direction=False, passed=passed))
 
                     # if len(moves) > length[0]:
                     #     delete_pair_by_value(moves, last)
@@ -418,18 +448,22 @@ class Board:
 
             # if there is a piece in the square and it is not of our color - then we can move further (last piece will be the piece we are jumping through now)
             else:
-                if current in skipped:
+
+                if current in passed:
                     print(1)
                     break
+                last = [current]
+                passed = passed + last
                 change_of_direction=True
             last = [current]
+
             #print(last, 4)
 
             left -= 1
 
         return moves
 
-    def _traverse_right_king(self, start, stop, step, color, right, skipped=[], prev=[], change_of_direction=False):
+    def _traverse_right_king(self, start, stop, step, color, right, skipped=[], prev=False, change_of_direction=False, passed=[]):
         moves = {}
         last = []
 
@@ -452,7 +486,7 @@ class Board:
                     moves[(r, right)] = last + skipped
                 else:
                     #print(last, 1)
-                    moves[(r, right)] = last
+                    moves[(r, right)] = last+skipped
 
 
 
@@ -468,10 +502,12 @@ class Board:
                 length = [len(moves)]
 
 
-                moves.update(self._traverse_right_king(r + step, row, step, color, right + 1, skipped=last + skipped, prev = prev))
                 if change_of_direction == True:
-                    moves.update(self._traverse_left_king(r + step, row, step, color, right - 1, skipped=last + skipped, prev=prev))
-                    moves.update(self._traverse_right_king(r - step, opposite_row, -step, color, right + 1, skipped=last + skipped, prev = prev))
+                    moves.update(self._traverse_right_king(r + step, row, step, color, right + 1, skipped=last + skipped,prev=prev, change_of_direction=True, passed=passed))
+                    moves.update(self._traverse_left_king(r + step, row, step, color, right - 1, skipped=last + skipped, prev=prev, change_of_direction=False, passed=passed))
+                    moves.update(self._traverse_right_king(r - step, opposite_row, -step, color, right + 1, skipped=last + skipped, prev = prev, change_of_direction=False, passed=passed))
+                else:
+                    moves.update(self._traverse_right_king(r + step, row, step, color, right + 1, skipped=last + skipped,prev=prev, change_of_direction=False, passed=passed))
                 # if len(moves) > length[0]:
                     # delete_pair_by_value(moves, last)
 
@@ -482,13 +518,15 @@ class Board:
                 break
 
             else:
-                print(skipped)
-                if current in skipped:
+                if current in passed:
                     print(1)
                     break
+                last = [current]
+                passed = passed + last
                 change_of_direction = True
 
             last = [current]
+
             #print(last, 2)
 
 
